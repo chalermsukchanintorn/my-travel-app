@@ -7,7 +7,6 @@ import { TableContainer, TableHead, TableRow, AppBar, Toolbar, IconButton } from
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import profile from "./../assets/profile.jpg";
 import SAUConfirmDialog from "../components/SAUConfirmDialog";
-import axios from "axios";
 
 function MyTravel() {
   const [travellerFullnameShow, setTravellerFullnameShow] = useState("");
@@ -22,17 +21,16 @@ function MyTravel() {
       setTrvellerImageShow(traveller.travellerImage);
 
       const fetchData = async () => {
-        // const response = await fetch(`http://localhost:4000/travel/` + traveller.travellerId, {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        // });
-        const response = await axios.get(`http://localhost:4000/travel/` + traveller.travellerId);
+        const response = await fetch(`http://localhost:4000/travel/` + traveller.travellerId, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
-        if (response.status === 200) {
-          // const data = await response.json();
-          setTravel(response.data.data);
+        if (response.ok) {
+          const data = await response.json();
+          setTravel(data["data"]);
         }
       };
 
@@ -57,20 +55,16 @@ function MyTravel() {
 
   const confirmSAUConfirmDialog = async () => {
     try {
-      // const response = await fetch(`http://localhost:4000/travel/` + travelId, {
-      //   method: "DELETE",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
-
-      const response = await axios.delete(`http://localhost:4000/travel/` + travelId);
+      const response = await fetch(`http://localhost:4000/travel/` + travelId, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response.status === 200) {
-        // const data = await response.json();
-        // if (data["message"] === "Travel delete successfully") {
-          if (response.data.message === "Travel delete successfully") {
-
+        const data = await response.json();
+        if (data["message"] === "Travel delete successfully") {
           alert("ลบการเดินทางเรียบร้อย");
           window.location.href = "/mytravel";
         } else {

@@ -5,7 +5,6 @@ import { useState } from "react";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
 import profile from "./../assets/profile.jpg";
-import axios from "axios";
 
 function Register() {
   const [travellerFullname, setTravellerFullname] = useState("");
@@ -39,19 +38,14 @@ function Register() {
     }
 
     try {
-      // const response = await fetch("http://localhost:4000/traveller", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-
-      const response = await axios.post("http://localhost:4000/traveller", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await fetch("http://localhost:4000/traveller", {
+        method: "POST",
+        body: formData,
       });
 
       if (response.status === 201) {
-        // const data = await response.json();
-        // if (data["message"] === "Traveller created successfully") {
-        if (response.data.message === "Traveller created successfully") {
+        const data = await response.json();
+        if (data["message"] === "Traveller created successfully") {
           alert("ลงทะเบียนเรียบร้อย");
           window.location.href = "/";
         } else {

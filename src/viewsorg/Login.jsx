@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Box, Typography, Avatar, TextField, Button } from "@mui/material";
 import { useState } from "react";
-import axios from "axios";
 
 function Login() {
   const [travellerEmail, setTravellerEmail] = useState("");
@@ -14,28 +13,23 @@ function Login() {
       return;
     }
     try {
-      // const response = await fetch("http://localhost:4000/traveller/" + travellerEmail + "/" + travellerPassword, {
-      //   method: "GET",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
-
-      const response = await axios.get("http://localhost:4000/traveller/" + travellerEmail + "/" + travellerPassword);
-
-      console.log(response)
+      const response = await fetch("http://localhost:4000/traveller/" + travellerEmail + "/" + travellerPassword, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response.status === 200) {
-        // const data = await response.json();
-        // localStorage.setItem("traveller", JSON.stringify(data["data"]));
-        
-        localStorage.setItem("traveller", JSON.stringify(response.data.data));
+        const data = await response.json();
+
+        localStorage.setItem("traveller", JSON.stringify(data["data"]));
         window.location.href = "/mytravel";
       } else {
         alert("อีเมล์ และรหัสผ่านไม่ถูกต้อง");
       }
     } catch (error) {
-      alert("พบปัญหาในการทำงาน ลองใหม่อีกครั้ง");
+      alert("พบปัญหาในการทำงาน ลองใหม่อีกครั้ง2");
     }
   };
 

@@ -5,136 +5,60 @@ import { useState, useEffect } from "react";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
-import SAUDialog from "../components/SAUDialog";
-import axios from "axios";
+import { useParams } from "react-router-dom";
+import profile from "./../assets/profile.jpg";
+import place from "./../assets/place.png";
 
-function AddMyTravel() {
+import SAUConfirmDialog from "../components/SAUConfirmDialog";
+import SAUDialog from "../components/SAUDialog";
+
+function EditMyTravel() {
   const [travellerFullnameShow, setTravellerFullnameShow] = useState("");
   const [travellerImageShow, setTrvellerImageShow] = useState("");
-  const [travellerId, setTravellerId] = useState("");
   const [travelPlace, setTravelPlace] = useState("");
   const [travelStartDate, setTravelStartDate] = useState("");
   const [travelEndDate, setTravelEndDate] = useState("");
   const [travelCostTotal, setTravelCostTotal] = useState("");
-  const [travelImage, setTravelImage] = useState(null); // State to store the image file
+  const [travellerId, setTravellerId] = useState("");
+  const [travelImageOld, setTravelImageOld] = useState("");
+  const [travelImageNew, setTravelImageNew] = useState(null);
+
+  const { travelId } = useParams();
 
   useEffect(() => {
     const traveller = JSON.parse(localStorage.getItem("traveller"));
     if (traveller) {
       setTravellerFullnameShow(traveller.travellerFullname);
       setTrvellerImageShow(traveller.travellerImage);
-      setTravellerId(traveller.travellerId);
+
+      const fetchData = async () => {
+        const response = await fetch(`http://localhost:4000/travel/only/` + travelId, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          setTravelPlace(data["data"].travelPlace);
+          setTravelStartDate(data["data"].travelStartDate);
+          setTravelEndDate(data["data"].travelEndDate);
+          setTravelCostTotal(data["data"].travelCostTotal);
+          setTravellerId(data["data"].travellerId);
+          setTravelImageOld(data["data"].travelImage);
+        }
+      };
+
+      fetchData();
     }
   }, []);
-
-  //กรณีไม่มีการอัปโหลไฟล์
-  // const handleAddClick = async (e) => {
-  //   e.preventDefault();
-
-  //   if (travelPlace === "" || travelStartDate === "" || travelEndDate === "" || travelCostTotal === "") {
-  //     alert("ตรวจสอบการป้อน สถานที่ที่ไป วันที่ไป วันที่กลับ และค่าใช้จ่าย");
-  //     return;
-  //   }
-  //   try {
-  //     const response = await fetch("http://localhost:5050/travel", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         travelPlace: travelPlace,
-  //         travelStartDate: travelStartDate,
-  //         travelEndDate: travelEndDate,
-  //         travelCostTotal: travelCostTotal,
-  //         travellerId: travellerId,
-  //       }),
-  //     });
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       if (data["status"] === "ok") {
-  //         alert("บันทึกการเดินทางเรียบร้อย");
-  //         window.location.href = "/mytravel";
-  //       } else {
-  //         alert("บันทึกการเดินทางไม่สำเร็จ");
-  //       }
-  //     } else {
-  //       alert("พบปัญหาในการทำงาน ลองใหม่อีกครั้ง");
-  //     }
-  //   } catch (error) {
-  //     alert("พบปัญหาในการทำงาน ลองใหม่อีกครั้ง");
-  //   }
-  // };
-
-  const [open, setOpen] = useState(false);
-  const [titleSAUDialog, setTitleSAUDialog] = useState("");
-  const [messageSAUDialog, setMessageSAUDialog] = useState("");
-
-  const openSAUDialog = (titleSAUDialog, messageSAUDialog) => {
-    setTitleSAUDialog(titleSAUDialog);
-    setMessageSAUDialog(messageSAUDialog);
-    setOpen(true);
-  };
-
-  const closeSAUDialog = () => {
-    setOpen(false);
-  };
-
-  const handleAddTravelClick = async (e) => {
-    e.preventDefault();
-
-    if (travelPlace === "" || travelStartDate === "" || travelEndDate === "" || travelCostTotal === "") {
-      // alert("ตรวจสอบการป้อน สถานที่ที่ไป วันที่ไป วันที่กลับ และค่าใช้จ่าย");
-      openSAUDialog("คำเตือน", "ตรวจสอบการป้อน สถานที่ที่ไป วันที่ไป วันที่กลับ และค่าใช้จ่าย");
-      return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("travelPlace", travelPlace);
-    formData.append("travelStartDate", travelStartDate);
-    formData.append("travelEndDate", travelEndDate);
-    formData.append("travelCostTotal", travelCostTotal);
-    formData.append("travellerId", travellerId);
-
-    if (travelImage) {
-      formData.append("travelImage", travelImage);
-    }
-
-    try {
-      // const response = await fetch("http://localhost:4000/travel/", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-
-      const response = await axios.post("http://localhost:4000/travel/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (response.status === 201) {
-        // const data = await response.json();
-        // if (data["message"] === "Travel created successfully") {
-        if (response.data.message === "Travel created successfully") {
-          // alert("บันทึกการเดินทางเรียบร้อย");
-          openSAUDialog("ผลการทำงาน", "บันทึกการเดินทางเรียบร้อย");
-          window.location.href = "/mytravel";
-        } else {
-          // alert("บันทึกการเดินทางไม่สำเร็จ");
-          openSAUDialog("ผลการทำงาน", "บันทึกการเดินทางไม่สำเร็จ");
-        }
-      } else {
-        // alert("พบปัญหาในการทำงาน ลองใหม่อีกครั้ง");
-        openSAUDialog("คำเตือน", "พบปัญหาในการทำงาน ลองใหม่อีกครั้ง");
-      }
-    } catch (error) {
-      // alert("พบปัญหาในการทำงาน " + error);
-      openSAUDialog("คำเตือน", "พบปัญหาในการทำงาน " + error);
-    }
-  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setTravelImage(file);
+      setTravelImageNew(file);
     }
   };
 
@@ -149,6 +73,66 @@ function AddMyTravel() {
     whiteSpace: "nowrap",
     width: 1,
   });
+
+  
+
+  //-------------
+  const [open, setOpen] = useState(false);
+  const [titleSAUDialog, setTitleSAUDialog] = useState("");
+  const [messageSAUDialog, setMessageSAUDialog] = useState("");
+
+  const openSAUDialog = (titleSAUDialog, messageSAUDialog) => {
+    setTitleSAUDialog(titleSAUDialog);
+    setMessageSAUDialog(messageSAUDialog);
+    setOpen(true);
+  };
+
+  const closeSAUDialog = () => {
+    setOpen(false);
+  };
+  //---------------
+
+  const handleUpdateTravelClick = async (e) => {
+    e.preventDefault();
+
+    if (travelPlace === "" || travelStartDate === "" || travelEndDate === "" || travelCostTotal === "") {
+      alert("ตรวจสอบการป้อน สถานที่ที่ไป วันที่ไป วันที่กลับ และค่าใช้จ่าย");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("travelPlace", travelPlace);
+    formData.append("travelStartDate", travelStartDate);
+    formData.append("travelEndDate", travelEndDate);
+    formData.append("travelCostTotal", travelCostTotal);
+    formData.append("travellerId", travellerId);
+
+    if (travelImageNew) {
+      formData.append("travelImage", travelImageNew);
+    }
+
+    try {
+      const response = await fetch(`http://localhost:4000/travel/${travelId}`, {
+        method: "PUT",
+        body: formData,
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        if (data["message"] === "Travel updated successfully") {
+          alert("บันทึกแก้ไขการเดินทางเรียบร้อย");
+          window.location.href = "/mytravel";
+        } else {
+          alert("บันทึกแก้ไขการเดินทางไม่สำเร็จ");
+        }
+      } else {
+        alert("พบปัญหาในการทำงาน ลองใหม่อีกครั้ง");
+      }
+    } catch (error) {
+      alert("พบปัญหาในการทำงาน " + error);
+    }
+  };
 
   return (
     <>
@@ -173,9 +157,7 @@ function AddMyTravel() {
               <Avatar
                 variant="rounded"
                 src={
-                  travellerImageShow != ""
-                    ? `http://localhost:4000/images/traveller/${travellerImageShow}`
-                    : "place.png"
+                  travellerImageShow != "" ? `http://localhost:4000/images/traveller/${travellerImageShow}` : profile
                 }
                 sx={{ width: 45, height: 45, boxShadow: 3, mr: 3 }}
               />
@@ -254,7 +236,13 @@ function AddMyTravel() {
           <Avatar
             variant="square"
             alt="SAU"
-            src={travelImage ? URL.createObjectURL(travelImage) : "place.png"}
+            src={
+              travelImageNew
+                ? URL.createObjectURL(travelImageNew)
+                : travelImageOld != ""
+                ? `http://localhost:4000/images/travel/${travelImageOld}`
+                : place
+            }
             sx={{ width: 120, height: 120, boxShadow: 3, my: 3, borderRadius: 2, mx: "auto" }}
           />
 
@@ -269,8 +257,8 @@ function AddMyTravel() {
 
           <Box sx={{ my: 2 }} />
 
-          <Button variant="contained" color="primary" fullWidth sx={{ py: 1.5 }} onClick={handleAddTravelClick}>
-            บันทึกการเดินทาง
+          <Button variant="contained" color="primary" fullWidth sx={{ py: 1.5 }} onClick={handleUpdateTravelClick}>
+            บันทึกแก้ไขการเดินทาง
           </Button>
           <Box sx={{ my: 2 }} />
           <Typography sx={{ textAlign: "center" }}>
@@ -278,10 +266,12 @@ function AddMyTravel() {
           </Typography>
         </Box>
       </Box>
-      {/* ++++++++++++++ */}
+      {/* ------------ */}
+      
+
       <SAUDialog title={titleSAUDialog} message={messageSAUDialog} open={open} onClose={closeSAUDialog} />
     </>
   );
 }
 
-export default AddMyTravel;
+export default EditMyTravel;

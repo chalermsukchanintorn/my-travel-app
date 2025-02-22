@@ -6,7 +6,6 @@ import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
 import SAUDialog from "../components/SAUDialog";
-import axios from "axios";
 
 function AddMyTravel() {
   const [travellerFullnameShow, setTravellerFullnameShow] = useState("");
@@ -101,19 +100,14 @@ function AddMyTravel() {
     }
 
     try {
-      // const response = await fetch("http://localhost:4000/travel/", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-
-      const response = await axios.post("http://localhost:4000/travel/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await fetch("http://localhost:4000/travel/", {
+        method: "POST",
+        body: formData,
       });
 
       if (response.status === 201) {
-        // const data = await response.json();
-        // if (data["message"] === "Travel created successfully") {
-        if (response.data.message === "Travel created successfully") {
+        const data = await response.json();
+        if (data["message"] === "Travel created successfully") {
           // alert("บันทึกการเดินทางเรียบร้อย");
           openSAUDialog("ผลการทำงาน", "บันทึกการเดินทางเรียบร้อย");
           window.location.href = "/mytravel";

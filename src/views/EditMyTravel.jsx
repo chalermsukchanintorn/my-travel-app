@@ -8,6 +8,7 @@ import { styled } from "@mui/material/styles";
 import { useParams } from "react-router-dom";
 import profile from "./../assets/profile.jpg";
 import place from "./../assets/place.png";
+import axios from "axios";
 
 import SAUConfirmDialog from "../components/SAUConfirmDialog";
 import SAUDialog from "../components/SAUDialog";
@@ -32,22 +33,31 @@ function EditMyTravel() {
       setTrvellerImageShow(traveller.travellerImage);
 
       const fetchData = async () => {
-        const response = await fetch(`http://localhost:4000/travel/only/` + travelId, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        // const response = await fetch(`http://localhost:4000/travel/only/` + travelId, {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        // });
 
-        if (response.ok) {
-          const data = await response.json();
+        const response = await axios.get(`http://localhost:4000/travel/only/` + travelId);
 
-          setTravelPlace(data["data"].travelPlace);
-          setTravelStartDate(data["data"].travelStartDate);
-          setTravelEndDate(data["data"].travelEndDate);
-          setTravelCostTotal(data["data"].travelCostTotal);
-          setTravellerId(data["data"].travellerId);
-          setTravelImageOld(data["data"].travelImage);
+        if (response.status === 200) {
+          // const data = await response.json();
+
+          // setTravelPlace(data["data"].travelPlace);
+          // setTravelStartDate(data["data"].travelStartDate);
+          // setTravelEndDate(data["data"].travelEndDate);
+          // setTravelCostTotal(data["data"].travelCostTotal);
+          // setTravellerId(data["data"].travellerId);
+          // setTravelImageOld(data["data"].travelImage);
+
+          setTravelPlace(response.data.data.travelPlace);
+          setTravelStartDate(response.data.data.travelStartDate);
+          setTravelEndDate(response.data.data.travelEndDate);
+          setTravelCostTotal(response.data.data.travelCostTotal);
+          setTravellerId(response.data.data.travellerId);
+          setTravelImageOld(response.data.data.travelImage);
         }
       };
 
@@ -74,7 +84,7 @@ function EditMyTravel() {
     width: 1,
   });
 
-  
+
 
   //-------------
   const [open, setOpen] = useState(false);
@@ -113,14 +123,20 @@ function EditMyTravel() {
     }
 
     try {
-      const response = await fetch(`http://localhost:4000/travel/${travelId}`, {
-        method: "PUT",
-        body: formData,
+      // const response = await fetch(`http://localhost:4000/travel/${travelId}`, {
+      //   method: "PUT",
+      //   body: formData,
+      // });
+
+      const response = await axios.put(`http://localhost:4000/travel/${travelId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (response.status === 200) {
-        const data = await response.json();
-        if (data["message"] === "Travel updated successfully") {
+        // const data = await response.json();
+        // if (data["message"] === "Travel updated successfully") {
+        if (response.data.message === "Travel updated successfully") {
+
           alert("บันทึกแก้ไขการเดินทางเรียบร้อย");
           window.location.href = "/mytravel";
         } else {
@@ -240,8 +256,8 @@ function EditMyTravel() {
               travelImageNew
                 ? URL.createObjectURL(travelImageNew)
                 : travelImageOld != ""
-                ? `http://localhost:4000/images/travel/${travelImageOld}`
-                : place
+                  ? `http://localhost:4000/images/travel/${travelImageOld}`
+                  : place
             }
             sx={{ width: 120, height: 120, boxShadow: 3, my: 3, borderRadius: 2, mx: "auto" }}
           />
@@ -267,7 +283,7 @@ function EditMyTravel() {
         </Box>
       </Box>
       {/* ------------ */}
-      
+
 
       <SAUDialog title={titleSAUDialog} message={messageSAUDialog} open={open} onClose={closeSAUDialog} />
     </>

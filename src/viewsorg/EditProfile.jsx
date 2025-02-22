@@ -8,7 +8,6 @@ import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
 import profile from "./../assets/profile.jpg";
-import axios from "axios";
 
 function EditProfile() {
   const [travellerFullnameShow, setTravellerFullnameShow] = useState("");
@@ -73,22 +72,16 @@ function EditProfile() {
     }
 
     try {
-      // const response = await fetch(`http://localhost:4000/traveller/${travellerId}`, {
-      //   method: "PUT",
-      //   body: formData,
-      // });
-
-      const response = await axios.put(`http://localhost:4000/traveller/${travellerId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await fetch(`http://localhost:4000/traveller/${travellerId}`, {
+        method: "PUT",
+        body: formData,
       });
 
       if (response.status === 200) {
-        // const data = await response.json();
-        // if (data["message"] === "Traveller updated successfully") {
-        if (response.data.message === "Traveller updated successfully") {
+        const data = await response.json();
+        if (data["message"] === "Traveller updated successfully") {
           alert("บันทึกการแก้ไขข้อมูลส่วนตัวเรียบร้อย");
-          // localStorage.setItem("traveller", JSON.stringify(data["data"]));
-          localStorage.setItem("traveller", JSON.stringify(response.data.data));
+          localStorage.setItem("traveller", JSON.stringify(data["data"]));
           window.location.href = "/editprofile";
         } else {
           alert("ลงทะเบียนไม่สำเร็จ");
